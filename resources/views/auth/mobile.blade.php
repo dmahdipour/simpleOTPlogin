@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-md mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-2xl font-bold mb-4 text-center">ورود با موبایل</h2>
-    <form method="POST" action="{{ route('login.checkMobile') }}">
+    <form method="POST" action="{{ route('login.send') }}">
         @csrf
         <input type="text" name="mobile" placeholder="شماره موبایل" required class="w-full p-3 mb-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         @error('mobile')

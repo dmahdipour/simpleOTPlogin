@@ -7,21 +7,22 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
-class SendOtpJob implements ShouldQueue
-{
+class SendOtpJob implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $mobile;
-    protected $otp;
+    public string $mobile;
 
-    public function __construct($mobile, $otp) {
+    public function __construct(string $mobile) {
         $this->mobile = $mobile;
-        $this->otp = $otp;
     }
 
-    public function handle() {
-        Log::info("Send OTP {$this->otp} to {$this->mobile}");
+    public function handle(): void {
+        $otp = rand(1000, 9999);
+        Redis::setex("otp:{$this->mobile}", 300, $otp);
+
+        // TODO: ارسال SMS واقعی
+        \Log::info("OTP for {$this->mobile}: {$otp}");
     }
 }
