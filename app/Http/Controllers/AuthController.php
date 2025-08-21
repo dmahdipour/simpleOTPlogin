@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\VerifyPaswordRequest;
 use App\Http\Requests\VerifyOtpRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Jobs\SendOtpJob;
@@ -25,10 +25,10 @@ class AuthController extends Controller
             return redirect()->route('password.form')->with('mobile', $mobile);
         }
 
-        $a=SendOtpJob::dispatch($mobile);
+        SendOtpJob::dispatch($mobile);
         session(['login_mobile' => $mobile]);
 
-        return redirect()->route('otp.form');
+        return redirect()->route('otp.form')->with(['success' => 'کد تایید ارسال شد.']);
     }
 
     public function showOtpForm() {
@@ -39,7 +39,6 @@ class AuthController extends Controller
         $mobile = session('login_mobile');
         $storedOtp = Redis::get("otp:$mobile");
         if ($storedOtp && $storedOtp == $request->otp) {
-
             return redirect()->route('register.form')->with('mobile', $mobile);
         }
         return back()->withErrors(['otp' => 'کد تایید نامعتبر است.']);
@@ -49,7 +48,7 @@ class AuthController extends Controller
         return view('auth.password');
     }
 
-    public function passwordVerify(Request $request) {
+    public function passwordVerify(VerifyPaswordRequest $request) {
         $mobile = session('login_mobile');
         $user = User::where('mobile', $mobile)->first();
         if ($user && Hash::check($request->password, $user->password)) {
